@@ -32,7 +32,7 @@ class PreGenerateDataManipulation:
         self.sample_sorter()
         self.sample_dictionary_assembler()
         self.create_job_list()
-        self.print_sample_dictionary()
+        #self.print_sample_dictionary()
         return self.sample_dictionary
 
     def page_splitter(self):
@@ -65,7 +65,7 @@ class PreGenerateDataManipulation:
                     counter += 1
                     pass
                 else:
-                    sample_list.append([subitem, counter])
+                    sample_list.append([subitem, counter, item.iloc[2,counter], item.iloc[0, counter]])
                     counter += 1
             self.sample_counter_list.append(sample_list)
 
@@ -73,12 +73,17 @@ class PreGenerateDataManipulation:
         counter = 0
         for item in self.sample_counter_list:
             for subitem in item:
-                if subitem[0] == "Bud":
+                print(subitem)
+                if subitem[3] == "Bud" and subitem[2] == "%rec":
                     self.sample_dictionary["Spike (Bud)"] = self.page_list[counter].iloc[:, subitem[1]]
-                elif subitem[0] == "Oil":
+                elif subitem[3] == "Oil" and subitem[2] == "%rec":
                     self.sample_dictionary["Spike (Oil)"] = self.page_list[counter].iloc[:, subitem[1]]
-                elif "CS" in subitem[0]:
+                elif "CS" in subitem[0] and subitem[2] == "%rec":
                     self.sample_dictionary["Curve Recovery"] = self.page_list[counter].iloc[:, subitem[1]]
+                elif subitem[0] == "Bud" and subitem[2] == "LOQ (est.)":
+                    self.sample_dictionary["LOQ (Bud)"] = self.page_list[counter].iloc[:, subitem[1]]
+                elif subitem[0] == "Oil" and subitem[2] == "LOQ (est.)":
+                    self.sample_dictionary["LOQ (Oil)"] = self.page_list[counter].iloc[:, subitem[1]]
                 else:
                     self.sample_dictionary[subitem[0]] = self.page_list[counter].iloc[:, subitem[1]]
             counter += 1

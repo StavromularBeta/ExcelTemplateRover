@@ -14,16 +14,6 @@ sys.path.insert(0, currentdir)
 from Pre_Generate.PreGenerateController import PreGenerateController as PreGenControl
 
 
-def start_data_processing(file_name, instrument_type):
-    PreGenControl(file_name, instrument_type)
-
-
-def browse_button(instrument_type):
-    filename = filedialog.askopenfilename(
-        initialdir=r"T:\ANALYST WORK FILES\Peter\ExcelTemplateRover\ExcelTemplates")
-    start_data_processing(filename, instrument_type)
-
-
 class HomepageWindow(Tk.Frame):
     def __init__(self, parent, **kwargs):
         Tk.Frame.__init__(self, parent, **kwargs)
@@ -32,9 +22,20 @@ class HomepageWindow(Tk.Frame):
 
     def homepage(self):
         select_button_pest_toxin_excel = Tk.Button(self, text="Pesticides/Toxins Batch",
-                                                   command=lambda: browse_button("PestToxinExcel"),
+                                                   command=lambda: self.browse_button("PestToxinExcel"),
                                                    font=self.select_button_font)
         select_button_pest_toxin_excel.grid(row=0, column=1, sticky=Tk.W, padx=10, pady=10)
+
+    def start_data_processing(self, file_name, instrument_type):
+        pre_gen_control = PreGenControl(file_name, instrument_type)
+        sample_dictionary = pre_gen_control.sample_dictionary
+        header_dictionary = pre_gen_control.header_dictionary
+        self.parent.display_batchpage(sample_dictionary, header_dictionary)
+
+    def browse_button(self, instrument_type):
+        filename = filedialog.askopenfilename(
+            initialdir=r"T:\ANALYST WORK FILES\Peter\ExcelTemplateRover\ExcelTemplates")
+        self.start_data_processing(filename, instrument_type)
 
 
 
