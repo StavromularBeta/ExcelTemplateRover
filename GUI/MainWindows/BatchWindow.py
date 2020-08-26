@@ -10,6 +10,7 @@ sys.path.insert(0, parentdir)
 parentdir = os.path.dirname(parentdir)
 sys.path.insert(0, parentdir)
 sys.path.insert(0, currentdir)
+from Post_Generate.post_generate_controller import ReportWriter as report
 
 
 class BatchWindow(Tk.Frame):
@@ -286,6 +287,8 @@ class BatchWindow(Tk.Frame):
     def post_generate_controller(self, sample_data, header_data):
         counter = 0
         for key, value in header_data.items():
+            print(key)
+            print(len(value))
             for item in range(0, 17):
                 header_data[key][item] = \
                     self.updated_dictionary['headers'][counter]
@@ -339,7 +342,6 @@ class BatchWindow(Tk.Frame):
         for key, value in header_data.items():
             header_data[key][header_counter] = sample_names_master_list[counter]
             counter += 1
-        print(sample_data)
-        print(header_data)
-        print(self.updated_dictionary)
+        batch_report = report(sample_data, header_data, self.updated_dictionary)
+        batch_report.post_generate_controller()
 

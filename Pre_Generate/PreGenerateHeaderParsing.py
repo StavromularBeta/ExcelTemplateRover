@@ -68,7 +68,7 @@ class PreGenerateHeaderParsing:
     def header_parser_V2(self, header_contents):
         if header_contents == "Header not found":
             parsed_header_contents = ['no', 'no', 'no', 'no', 'no', 'no', 'no', 'no', 'no', 'no', 'no', 'no', 'no',
-                                      'no', 'no', 'no']
+                                      'no', 'no', 'no', 'no']
             return parsed_header_contents
         name1 = header_contents[0:55].strip()
         date = header_contents[55:66].strip()
