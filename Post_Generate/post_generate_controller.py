@@ -8,6 +8,7 @@ sys.path.insert(0, parentdir)
 sys.path.insert(0, currentdir)
 from post_generate_header_methods import HeaderMethods
 from post_generate_organize_methods import OrganizeMethods
+from post_generate_report_writing_methods import ReportMethods
 
 
 class ReportWriter:
@@ -37,8 +38,14 @@ class ReportWriter:
         self.latex_header_and_sample_list_dictionary = self.header_methods.generate_samples_list()
         self.single_reports_dictionary, self.multiple_reports_dictionary = \
             self.organize_methods.split_samples_into_single_or_multi()
-        print(self.single_reports_dictionary)
-        print(self.multiple_reports_dictionary)
+        self.report_methods = ReportMethods(self.sample_data,
+                                            self.updates,
+                                            self.latex_header_dictionary,
+                                            self.latex_header_and_sample_list_dictionary,
+                                            self.single_reports_dictionary,
+                                            self.multiple_reports_dictionary
+                                            )
+        self.report_methods.generate_pesticide_reports()
 
 
 
