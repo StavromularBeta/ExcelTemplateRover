@@ -6,7 +6,6 @@ class OrganizeMethods:
     def __init__(self, updates, sample_data):
         self.updates = updates
         self.sample_data = sample_data
-        print(self.sample_data)
         self.single_reports_dictionary = {}
         self.multiple_reports_dictionary = {}
 
@@ -14,11 +13,11 @@ class OrganizeMethods:
         counter = 0
         for item in self.updates['single multi']:
             if item == 'Single':
-                self.single_reports_dictionary[self.sample_data.job_list[counter]] = \
+                self.single_reports_dictionary[self.updates["sample numbers"][counter]] = \
                     [self.updates['sample type'][counter],
                      self.updates['report type'][counter]]
             else:
-                self.multiple_reports_dictionary[self.sample_data.unique_sample_id_list[counter]] = \
+                self.multiple_reports_dictionary[self.updates["sample numbers"][counter]] = \
                     [self.updates['sample type'][counter],
                      self.updates['report type'][counter]]
             counter += 1

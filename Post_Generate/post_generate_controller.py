@@ -37,9 +37,8 @@ class ReportWriter:
         self.latex_header_and_sample_list_dictionary = self.header_methods.generate_samples_list()
         self.single_reports_dictionary, self.multiple_reports_dictionary = \
             self.organize_methods.split_samples_into_single_or_multi()
-        print(self.sample_data)
-        print(self.header_data)
-        print(self.updates)
+        print(self.single_reports_dictionary)
+        print(self.multiple_reports_dictionary)
 
 
 

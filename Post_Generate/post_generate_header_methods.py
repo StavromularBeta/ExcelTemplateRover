@@ -19,8 +19,8 @@ class HeaderMethods:
         """Iterates through the parsed header contents dictionary and produces the latex header for each job. the 16th
         list item is a list of padding, which gets applied to the center column of the header so that the center column
         is properly aligned (the one downfall of this latex header package, no alignment on the center column). """
+        print(self.header_data)
         for key, item in self.header_data.items():
-            print(item[15])
             if len(item[15]) <= 6:
                 item[15] = '1'
                 print(item[15])

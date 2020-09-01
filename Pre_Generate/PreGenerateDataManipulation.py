@@ -1,5 +1,6 @@
 import pandas as pd
 import os, sys, inspect
+import collections
 import xlsxwriter
 from math import floor, log10, isnan
 # below 3 lines add the parent directory to the path, so that SQL_functions can be found.
@@ -18,7 +19,7 @@ class PreGenerateDataManipulation:
         self.excel_file = excel_file
         self.page_list = []
         self.sample_counter_list = []
-        self.sample_dictionary = {}
+        self.sample_dictionary = collections.OrderedDict()
         self.pt_data = pd.read_excel(self.excel_file)
 #       This is for development - allows me to see the full DataFrame when i print to the console, rather than a
 #       truncated version. This is useful for debugging purposes and ensuring that methods are working as intended.
@@ -32,7 +33,6 @@ class PreGenerateDataManipulation:
         self.sample_sorter()
         self.sample_dictionary_assembler()
         self.create_job_list()
-        #self.print_sample_dictionary()
         return self.sample_dictionary
 
     def page_splitter(self):
@@ -65,7 +65,7 @@ class PreGenerateDataManipulation:
                     counter += 1
                     pass
                 else:
-                    sample_list.append([subitem, counter, item.iloc[2,counter], item.iloc[0, counter]])
+                    sample_list.append([subitem, counter, item.iloc[2, counter], item.iloc[0, counter]])
                     counter += 1
             self.sample_counter_list.append(sample_list)
 
@@ -73,7 +73,11 @@ class PreGenerateDataManipulation:
         counter = 0
         for item in self.sample_counter_list:
             for subitem in item:
-                print(subitem)
+                try:
+                    if "batch std" in subitem[3] and subitem[2] == "%rec":
+                        self.sample_dictionary["Curve Recovery"] = self.page_list[counter].iloc[:, subitem[1]]
+                except TypeError:
+                    pass
                 if subitem[3] == "Bud" and subitem[2] == "%rec":
                     self.sample_dictionary["Spike (Bud)"] = self.page_list[counter].iloc[:, subitem[1]]
                 elif subitem[3] == "Oil" and subitem[2] == "%rec":
@@ -90,14 +94,18 @@ class PreGenerateDataManipulation:
 
     def create_job_list(self):
         job_list = []
+        sample_list = []
         for item in self.sample_dictionary.keys():
             try:
                 if isinstance(int(item[0:6]), int):
                     job_list.append(item[0:6])
+                    sample_list.append(item)
             except ValueError:
                 pass
         job_list = list(set(job_list))
+        sample_list = list(set(sample_list))
         self.sample_dictionary["Job List"] = job_list
+        self.sample_dictionary["Sample List"] = sample_list
 
     def print_sample_dictionary(self):
         for key, value in self.sample_dictionary.items():

@@ -40,6 +40,8 @@ class BatchWindow(Tk.Frame):
         self.updated_sample_name_list = []
         #Update Dictionary
         self.updated_dictionary = {}
+        #sample number list
+        self.sample_number_list = []
 
     def batch(self, sample_dictionary, header_dictionary):
         self.create_scrollable_window()
@@ -229,6 +231,7 @@ class BatchWindow(Tk.Frame):
             try:
                 if isinstance(int(key[0:6]), int):
                     Tk.Label(self.samples_checklist_frame, text=key).grid(row=counter, column=0)
+                    self.sample_number_list.append(key)
                     sample_type_string_variable = Tk.StringVar(self.samples_checklist_frame)
                     sample_type_choices = {'Bud', 'Oil', 'Paper', 'Rinse', 'Other'}
                     sample_type_string_variable.set('Bud')
@@ -282,13 +285,12 @@ class BatchWindow(Tk.Frame):
         self.updated_dictionary['single multi'] = self.updated_single_or_multi_list
         self.updated_dictionary['headers'] = self.updated_header_information_list
         self.updated_dictionary['sample names'] = self.updated_sample_name_list
+        self.updated_dictionary['sample numbers'] = self.sample_number_list
         self.post_generate_controller(dict_list[0], dict_list[1])
 
     def post_generate_controller(self, sample_data, header_data):
         counter = 0
         for key, value in header_data.items():
-            print(key)
-            print(len(value))
             for item in range(0, 17):
                 header_data[key][item] = \
                     self.updated_dictionary['headers'][counter]
