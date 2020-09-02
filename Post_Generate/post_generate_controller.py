@@ -40,7 +40,6 @@ class ReportWriter:
             self.organize_methods.split_samples_into_single_or_multi()
         self.report_methods = ReportMethods(self.sample_data,
                                             self.updates,
-                                            self.latex_header_dictionary,
                                             self.latex_header_and_sample_list_dictionary,
                                             self.single_reports_dictionary,
                                             self.multiple_reports_dictionary
