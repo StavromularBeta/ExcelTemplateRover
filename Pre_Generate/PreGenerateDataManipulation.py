@@ -45,7 +45,7 @@ class PreGenerateDataManipulation:
         number_of_pages = range((self.pt_data.shape[0] % 113) + 1)
         page_counter = 0
         for item in number_of_pages:
-            page = self.pt_data.loc[page_counter:page_counter + 111]
+            page = self.pt_data.loc[page_counter:page_counter + 112]
             page.reset_index(drop=True, inplace=True)
             page = page.drop([64, 65, 66])
             page.reset_index(drop=True, inplace=True)
@@ -88,6 +88,8 @@ class PreGenerateDataManipulation:
                     self.sample_dictionary["LOQ (Bud)"] = self.page_list[counter].iloc[:, subitem[1]]
                 elif subitem[0] == "Oil" and subitem[2] == "LOQ (est.)":
                     self.sample_dictionary["LOQ (Oil)"] = self.page_list[counter].iloc[:, subitem[1]]
+                elif subitem[0] == "Paper" and subitem[2] == "LOQ (est.)":
+                    self.sample_dictionary["LOQ (Paper)"] = self.page_list[counter].iloc[:, subitem[1]]
                 else:
                     self.sample_dictionary[subitem[0]] = self.page_list[counter].iloc[:, subitem[1]]
             counter += 1

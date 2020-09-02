@@ -17,10 +17,12 @@ class ReportMethods:
         self.finished_reports_dictionary = {}
         self.single_list = []
         self.multi_list = []
+        self.table_row_lists_dictionary = {}
 
     def generate_pesticide_reports(self):
         self.split_reports_into_single_or_multi()
         self.make_single_tables()
+        print(self.table_row_lists_dictionary)
 
     def split_reports_into_single_or_multi(self):
         for sample in self.single_reports_dictionary.items():
@@ -34,10 +36,29 @@ class ReportMethods:
                 self.multi_list.append(matching)
 
     def make_single_tables(self):
-        print(self.single_list)
-        print(self.sample_data['pesticides/toxins list'])
-        row_counter = 0
         for sample in self.single_list:
+            row_list = []
+            row_counter = 0
+            type = sample[0][1][0]
+            loq_string = "LOQ (" + type + ")"
             for item in self.sample_data[sample[0][0]]:
-                print(str(self.sample_data['pesticides/toxins list'].loc[row_counter]) + '=' + str(item))
+                data_value_ppm = str(item)
+                analyte_name = str(self.sample_data['pesticides/toxins list'].loc[row_counter])
+                reference_recovery_value = str(self.sample_data["Curve Recovery"].loc[row_counter])
+                loq_value = str(self.sample_data[loq_string].loc[row_counter])
+                blank_value = "ND"
+                latex_table_row = analyte_name +\
+                    " & " +\
+                    data_value_ppm +\
+                    " & " +\
+                    blank_value +\
+                    " & " +\
+                    reference_recovery_value +\
+                    " & " +\
+                    loq_value + r" \\"
+                row_list.append(latex_table_row)
                 row_counter += 1
+            self.table_row_lists_dictionary[sample[0][0]] = row_list
+
+    def make_multi_tables(self):
+        pass
