@@ -23,10 +23,8 @@ class ReportMethods:
         self.split_reports_into_single_or_multi()
         self.make_single_tables()
         self.make_multi_tables()
-        for key, value in self.table_row_lists_dictionary.items():
-            print(key)
-            for item in value:
-                print(item)
+        self.combine_headers_tables_and_footers()
+        return self.finished_reports_dictionary
 
     def split_reports_into_single_or_multi(self):
         for sample in self.single_reports_dictionary.items():
@@ -75,7 +73,7 @@ class ReportMethods:
                     loq_value +\
                     " & " +\
                     reference_recovery_value + r" \\"
-                if row_counter == 60:
+                if row_counter in [40, 80]:
                     end_table_line = r"""\end{tabular}
 \end{table}
 \newpage
@@ -118,3 +116,31 @@ class ReportMethods:
             else:
                 self.table_row_lists_dictionary[jobnumber] = row_list
 
+    def generate_footer(self):
+        footer_string = r"""
+    *Analysis includes all 96 target compounds on the Health Canada Mandatory List Oct 2018\newline
+    **Trace = presence \& identity of compound verified, value below limit of quantification\newline
+    As per international standards, all observed values are reported even if they are below LOQ's.\newline
+    LOQ or MDL's are interpretative \& given as guidance only \& do not affect reported results.\newline\newline
+    Method: Sample is solvent extracted, then cleaned using SPE (QuEChERS) methods. Multi-\newline
+    residue analysis is carried out using UPLC-ESI-MS/MS/APCI \& GC-MS: SPME. Detection of\newline
+    compounds meet or exceed HC requirements. Procedure ref AOAC 2007.01; USP <561><565>, eu 2.0813.\newline
+    methods fully validated.
+    \newline\newline\newline
+    R. Bilodeau \phantom{aaaaaaaaaaaaaaaaaaaaaaaaaxaaaaaasasssssssssssss}H. Hartmann\\ Analytical Chemist: \underline{\hspace{3cm}}{ \hspace{3.2cm} Sr. Analytical Chemist: \underline{\hspace{3cm}}       
+    \fancyfoot[C]{\textbf{MB Laboratories Ltd.}\\ \textbf{Web:} www.mblabs.com}
+    \fancyfoot[R]{\textbf{Mail:} PO Box 2103\\ Sidney, B.C., V8L 356}
+    \fancyfoot[L]{\textbf{T:} 250 656 1334\\ \textbf{E:} info@mblabs.com}
+    \end{document}
+     """
+        return footer_string
+
+    def combine_headers_tables_and_footers(self):
+        for key, value in self.table_row_lists_dictionary.items():
+            header = self.latex_header_and_sample_list_dictionary[key[0:6]]
+            footer = self.generate_footer()
+            table_string = ''
+            for item in value:
+                table_string += item + '\n'
+            report = header + table_string + footer
+            self.finished_reports_dictionary[key] = report

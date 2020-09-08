@@ -9,6 +9,7 @@ sys.path.insert(0, currentdir)
 from post_generate_header_methods import HeaderMethods
 from post_generate_organize_methods import OrganizeMethods
 from post_generate_report_writing_methods import ReportMethods
+from post_generate_file_writing_methods import FileWritingMethods
 
 
 class ReportWriter:
@@ -44,7 +45,9 @@ class ReportWriter:
                                             self.single_reports_dictionary,
                                             self.multiple_reports_dictionary
                                             )
-        self.report_methods.generate_pesticide_reports()
+        reports = self.report_methods.generate_pesticide_reports()
+        self.file_methods = FileWritingMethods(reports)
+        self.file_methods.generate_report_directories_and_files()
 
 
 
