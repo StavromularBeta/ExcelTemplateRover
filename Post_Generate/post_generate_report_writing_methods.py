@@ -66,13 +66,13 @@ class ReportMethods:
                 blank_value = "ND"
                 latex_table_row = analyte_name +\
                     " & " +\
-                    data_value_ppm +\
+                    self.sig_fig_and_rounding_for_values(data_value_ppm) +\
                     " & " +\
                     blank_value +\
                     " & " +\
-                    loq_value +\
+                    self.sig_fig_and_rounding_for_values(loq_value) +\
                     " & " +\
-                    reference_recovery_value + r" \\"
+                    self.sig_fig_and_rounding_for_values(reference_recovery_value) + r" \\"
                 if row_counter in [40, 80]:
                     end_table_line = r"""\end{tabular}
 \end{table}
@@ -144,3 +144,47 @@ class ReportMethods:
                 table_string += item + '\n'
             report = header + table_string + footer
             self.finished_reports_dictionary[key] = report
+
+    def sig_fig_and_rounding_for_values(self, value):
+        check = self.sig_fig_rounder_pre_filter(value)
+        if check == "okay":
+            value = float(value)
+            string_value = str(value)
+            split_string = string_value.split('.')
+            pre_decimal = split_string[0]
+            if len(pre_decimal) >= 3:
+                value = int(round(value))
+            elif len(pre_decimal) >= 2:
+                value = round(value, 1)
+            elif len(pre_decimal) == 1:
+                if int(pre_decimal[0]) == 0:
+                    value = round(value, 3)
+                    if len(str(value)) == 4:
+                        value = str(value) + '0'
+                else:
+                    value = round(value, 2)
+                    if len(str(value)) == 3:
+                        value = str(value) + '0'
+            if value == 0.0:
+                value = 'ND'
+            return str(value)
+        else:
+            return check
+
+    def sig_fig_rounder_pre_filter(self, value):
+        if value == '-':
+            return value
+        elif value == 'nan':
+            return "ND"
+        elif value in ["Bud", "batch std", "Oil", "Isolate", "%rec", "Rosin", "Paper"]:
+            return value
+        elif "-" in value:
+            return value
+        elif "ng/ml" in value:
+            return value
+        elif "ng/g" in value:
+            return value
+        elif "LOQ" in value:
+            return value
+        else:
+            return "okay"
