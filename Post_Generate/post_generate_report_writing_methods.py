@@ -48,8 +48,8 @@ class ReportMethods:
     \small
     \begin{tabular}{p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
                     p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
-                    p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}
-                    p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}
+                    p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
+                    p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
                     p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}
                     }
     \textbf{Analyte} & \textbf{Sample 1}  & \textbf{\small Blank} &  $\mathbf{\small """ +\
@@ -95,6 +95,10 @@ class ReportMethods:
             row_counter = 0
             row_list = []
             jobnumber = samples[0][0][0:6]
+            split_list = self.multi_table_splitter(samples)
+            loq_types_list = self.multi_table_loq_fetcher(split_list)
+            table_headers = self.multi_table_header_creator(split_list, loq_types_list)
+            print(table_headers)
             while row_counter <= 109:
                 analyte_name = str(self.sample_data['pesticides/toxins list'].loc[row_counter])
                 reference_recovery_value = str(self.sample_data["Curve Recovery"].loc[row_counter])
@@ -188,3 +192,72 @@ class ReportMethods:
             return value
         else:
             return "okay"
+
+    def multi_table_splitter(self, samples):
+        counter = 0
+        split_list = []
+        small_list = []
+        for item in samples:
+            if counter == 3:
+                small_list.append(item)
+                split_list.append(small_list)
+                counter = 0
+            else:
+                small_list.append(item)
+                counter += 1
+        if small_list:
+            split_list.append(small_list)
+        return split_list
+
+    def multi_table_loq_fetcher(self, split_list):
+        list_of_loq_lists = []
+        loq_list = []
+        for job in split_list:
+            for sample in job:
+                loq_list.append(sample[1][0])
+            loq_list = list(set(loq_list))
+            list_of_loq_lists.append(loq_list)
+            loq_list = []
+        return list_of_loq_lists
+
+    def multi_table_header_creator(self, split_list, loq_types_list):
+        header_strings = []
+        item_counter = 0
+        header_string_1 = r"""\newline
+\renewcommand{\arraystretch}{0.9}
+\begin{table}[h!]\centering
+\small
+\begin{tabular}{p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|"""
+        header_string_2 = r"""p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
+p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
+}"""
+        for item in split_list:
+            columns_required = len(item) + len(loq_types_list[item_counter])
+            space_per_column = 0.6 / columns_required
+            extra_column_string = r"""p{\dimexpr""" +\
+                                  str(space_per_column) +\
+                                  r"""\textwidth-2\tabcolsep-\arrayrulewidth\relax}|"""
+            for number in range((columns_required-1)):
+                header_string_1 += extra_column_string
+            header_string_1 += header_string_2
+            header_strings.append(header_string_1)
+            first_row_string = r"\textbf{Analyte} & "
+            second_row_string = r"& "
+            for subitem in item:
+                sample_number = subitem[0][-1]
+                first_row_string += "Sample " + str(sample_number) + " & "
+                second_row_string += "(ng/g) & "
+            first_row_string += r"\textbf{\small Blank} & "
+            second_row_string += r"(ng/g) & "
+            for item in loq_types_list[item_counter]:
+                loq_string = "LOQ ( " + item + " )"
+                first_row_string += r"\textbf{\small " + loq_string + "} & "
+            first_row_string += r"& \textbf{\small \% Ref} \\"
+            second_row_string += r"& (Recovery) \\"
+            header_strings[item_counter] += '\n' + first_row_string + '\n' + second_row_string
+            item_counter += 1
+        return header_strings
+
+            
+
+
