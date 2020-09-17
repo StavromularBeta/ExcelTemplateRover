@@ -92,33 +92,44 @@ class ReportMethods:
 
     def make_multi_tables(self):
         for samples in self.multi_list:
-            row_counter = 0
-            row_list = []
+            split_list_counter = 0
             jobnumber = samples[0][0][0:6]
             split_list = self.multi_table_splitter(samples)
             loq_types_list = self.multi_table_loq_fetcher(split_list)
             table_headers = self.multi_table_header_creator(split_list, loq_types_list)
-            print(table_headers)
-            while row_counter <= 109:
-                analyte_name = str(self.sample_data['pesticides/toxins list'].loc[row_counter])
-                reference_recovery_value = str(self.sample_data["Curve Recovery"].loc[row_counter])
-                loq_types_list = []
-                sample_string = "& "
-                for sample in samples:
-                    sample_string += str(self.sample_data[sample[0]].loc[row_counter]) + " &"
-                    loq_types_list.append(sample[1][0])
-                loq_types_list = list(set(loq_types_list))
-                loq_string = "& "
-                for item in loq_types_list:
-                    loq_identifier_string = "LOQ (" + item + ")"
-                    loq_value = str(self.sample_data[loq_identifier_string].loc[row_counter])
-                    loq_string += loq_value + " &"
-                multi_table_row = analyte_name + sample_string + " ND " + loq_string + reference_recovery_value + r" \\"
-                if row_counter >= 3:
-                    row_list.append(multi_table_row)
-                row_counter += 1
-            else:
-                self.table_row_lists_dictionary[jobnumber] = row_list
+            for sub_list in split_list:
+                row_counter = 0
+                row_list = [table_headers[split_list_counter]]
+                while row_counter <= 109:
+                    analyte_name = str(self.sample_data['pesticides/toxins list'].loc[row_counter])
+                    reference_recovery_value = self.sig_fig_and_rounding_for_values(str(self.sample_data["Curve Recovery"].loc[row_counter]))
+                    sample_string = "& "
+                    for sample in sub_list:
+                        sample_string += self.sig_fig_and_rounding_for_values(str(self.sample_data[sample[0]].loc[row_counter])) + " &"
+                    loq_string = "& "
+                    for item in loq_types_list[split_list_counter]:
+                        loq_identifier_string = "LOQ (" + item + ")"
+                        loq_value = self.sig_fig_and_rounding_for_values(str(self.sample_data[loq_identifier_string].loc[row_counter]))
+                        loq_string += loq_value + " &"
+                    multi_table_row = analyte_name + sample_string + " ND " + loq_string + reference_recovery_value + r" \\"
+                    if row_counter in [40, 80]:
+                        end_table_line = r"""\end{tabular}
+                    \end{table}
+                    \newpage
+                    \newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}"""
+                        row_list.append(end_table_line)
+                        row_list.append(table_headers[split_list_counter])
+                        row_list.append(multi_table_row)
+                    else:
+                        if row_counter >= 3:
+                            row_list.append(multi_table_row)
+                        else:
+                            pass
+                    row_counter += 1
+                else:
+                    row_list.append(r'\end{tabular}\end{table}')
+                    self.table_row_lists_dictionary[jobnumber] = row_list
+                    split_list_counter += 1
 
     def generate_footer(self):
         footer_string = r"""
@@ -233,11 +244,11 @@ p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
 }"""
         for item in split_list:
             columns_required = len(item) + len(loq_types_list[item_counter])
-            space_per_column = 0.6 / columns_required
+            space_per_column = 0.60 / columns_required
             extra_column_string = r"""p{\dimexpr""" +\
                                   str(space_per_column) +\
                                   r"""\textwidth-2\tabcolsep-\arrayrulewidth\relax}|"""
-            for number in range((columns_required-1)):
+            for number in range(columns_required):
                 header_string_1 += extra_column_string
             header_string_1 += header_string_2
             header_strings.append(header_string_1)
@@ -247,13 +258,14 @@ p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
                 sample_number = subitem[0][-1]
                 first_row_string += "Sample " + str(sample_number) + " & "
                 second_row_string += "(ng/g) & "
-            first_row_string += r"\textbf{\small Blank} & "
-            second_row_string += r"(ng/g) & "
             for item in loq_types_list[item_counter]:
                 loq_string = "LOQ ( " + item + " )"
                 first_row_string += r"\textbf{\small " + loq_string + "} & "
-            first_row_string += r"& \textbf{\small \% Ref} \\"
-            second_row_string += r"& (Recovery) \\"
+                second_row_string += r"(ng/g) & "
+            first_row_string += r"\textbf{\small Blank} & "
+            second_row_string += r"(ng/g) & "
+            first_row_string += r" \textbf{\small \% Ref} \\"
+            second_row_string += r" (Recovery) \\"
             header_strings[item_counter] += '\n' + first_row_string + '\n' + second_row_string
             item_counter += 1
         return header_strings
