@@ -191,7 +191,7 @@ class ReportMethods:
             return value
         elif value == 'nan':
             return "ND"
-        elif value in ["Bud", "batch std", "Oil", "Isolate", "%rec", "Rosin", "Paper"]:
+        elif value in ["Bud", "batch std", "Oil", "Isolate", "%rec", "Rosin", "Paper", "Fresh Leaf", "CS4"]:
             return value
         elif "-" in value:
             return value
@@ -266,7 +266,10 @@ p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
             second_row_string += r"(ng/g) & "
             first_row_string += r" \textbf{\small \% Ref} \\"
             second_row_string += r" (Recovery) \\"
-            header_strings[item_counter] += '\n' + first_row_string + '\n' + second_row_string
+            header_strings[item_counter] += '\n' +\
+                                            first_row_string +\
+                                            '\n' +\
+                                            second_row_string
             item_counter += 1
         return header_strings
 

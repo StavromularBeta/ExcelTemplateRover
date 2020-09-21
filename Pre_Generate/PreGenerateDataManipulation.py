@@ -78,6 +78,11 @@ class PreGenerateDataManipulation:
                         self.sample_dictionary["Curve Recovery"] = self.page_list[counter].iloc[:, subitem[1]]
                 except TypeError:
                     pass
+                try:
+                    if "CS" in subitem[3] and subitem[2] == "%rec":
+                        self.sample_dictionary["Curve Recovery"] = self.page_list[counter].iloc[:, subitem[1]]
+                except TypeError:
+                    pass
                 if subitem[3] == "Bud" and subitem[2] == "%rec":
                     self.sample_dictionary["Spike (Bud)"] = self.page_list[counter].iloc[:, subitem[1]]
                 elif subitem[3] == "Oil" and subitem[2] == "%rec":
