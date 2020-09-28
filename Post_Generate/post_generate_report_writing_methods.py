@@ -82,7 +82,7 @@ class ReportMethods:
                     row_list.append(table_head_string)
                     row_list.append(latex_table_row)
                 else:
-                    if row_counter >= 3:
+                    if 100 > row_counter >= 3:
                         row_list.append(latex_table_row)
                     else:
                         pass
@@ -124,7 +124,7 @@ class ReportMethods:
                         row_list.append(table_headers[split_list_counter])
                         row_list.append(multi_table_row)
                     else:
-                        if row_counter >= 3:
+                        if 100 > row_counter >= 3:
                             row_list.append(multi_table_row)
                         else:
                             pass
