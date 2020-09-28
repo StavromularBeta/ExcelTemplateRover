@@ -87,7 +87,10 @@ class ReportMethods:
                     else:
                         pass
                 row_counter += 1
-            row_list.append(r'\end{tabular}\end{table}')
+            row_list.append(r'''\end{tabular}
+\end{table}
+\newpage
+\newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}''')
             self.table_row_lists_dictionary[sample[0][0]] = row_list
 
     def make_multi_tables(self):
@@ -127,8 +130,14 @@ class ReportMethods:
                             pass
                     row_counter += 1
                 else:
-                    row_list.append(r'\end{tabular}\end{table}')
-                    self.table_row_lists_dictionary[jobnumber] = row_list
+                    row_list.append(r'''\end{tabular}
+\end{table}
+\newpage
+\newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}''')
+                    try:
+                        self.table_row_lists_dictionary[jobnumber] += row_list
+                    except KeyError:
+                        self.table_row_lists_dictionary[jobnumber] = row_list
                     split_list_counter += 1
 
     def generate_footer(self):
@@ -157,7 +166,7 @@ class ReportMethods:
             table_string = ''
             for item in value:
                 table_string += item + '\n'
-            report = header + table_string + footer
+            report = header + table_string[:-82] + footer
             self.finished_reports_dictionary[key] = report
 
     def sig_fig_and_rounding_for_values(self, value):
@@ -191,7 +200,18 @@ class ReportMethods:
             return value
         elif value == 'nan':
             return "ND"
-        elif value in ["Bud", "batch std", "Oil", "Isolate", "%rec", "Rosin", "Paper", "Fresh Leaf", "CS4"]:
+        elif value in ["Bud",
+                       "batch std",
+                       "Oil",
+                       "Isolate",
+                       "%rec",
+                       "Rosin",
+                       "Paper",
+                       "Fresh Leaf",
+                       "CS4",
+                       "Arabica gum",
+                       "pallet",
+                       "na"]:
             return value
         elif "-" in value:
             return value
@@ -209,15 +229,17 @@ class ReportMethods:
         split_list = []
         small_list = []
         for item in samples:
-            if counter == 3:
+            if counter == 2:
                 small_list.append(item)
                 split_list.append(small_list)
+                small_list = []
                 counter = 0
             else:
                 small_list.append(item)
                 counter += 1
         if small_list:
             split_list.append(small_list)
+        print(split_list)
         return split_list
 
     def multi_table_loq_fetcher(self, split_list):
@@ -234,15 +256,15 @@ class ReportMethods:
     def multi_table_header_creator(self, split_list, loq_types_list):
         header_strings = []
         item_counter = 0
-        header_string_1 = r"""\newline
+        for item in split_list:
+            header_string_1 = r"""\newline
 \renewcommand{\arraystretch}{0.9}
 \begin{table}[h!]\centering
 \small
 \begin{tabular}{p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|"""
-        header_string_2 = r"""p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
+            header_string_2 = r"""p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
 p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
 }"""
-        for item in split_list:
             columns_required = len(item) + len(loq_types_list[item_counter])
             space_per_column = 0.60 / columns_required
             extra_column_string = r"""p{\dimexpr""" +\
