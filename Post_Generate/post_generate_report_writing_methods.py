@@ -71,7 +71,7 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
             row_list = [table_head_string]
             for item in self.sample_data[sample[0][0]]:
                 latex_table_row = self.make_single_table_row(item, row_counter, loq_string)
-                row_addition_decision = self.single_table_row_inclusion_decider(row_counter)
+                row_addition_decision = self.single_table_row_inclusion_decider(row_counter, sample)
                 if row_addition_decision == "END":
                     row_list.append(end_table_line)
                     row_list.append(table_head_string)
@@ -101,16 +101,26 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
                           self.sig_fig_and_rounding_for_values(reference_recovery_value) + r" \\"
         return latex_table_row
 
-    def single_table_row_inclusion_decider(self, row_counter):
+    def single_table_row_inclusion_decider(self, row_counter, sample):
+        toxins_status = sample[0][1][2]
+        end_string = "END"
+        denied_string = "NO"
+        approved_string = "ADD"
+        row_end_dictionary = {"Pesticides": 100,
+                              "Toxins Only": 106,
+                              "Both": 106}
+        row_start_dictionary = {"Pesticides": 3,
+                                "Toxins Only": 100,
+                                "Both": 3}
         if row_counter in [40, 80]:
-            end_string = "END"
-            return end_string
+            if toxins_status == "Toxins Only":
+                return denied_string
+            else:
+                return end_string
         else:
-            if 100 > row_counter >= 3:
-                approved_string = "ADD"
+            if row_end_dictionary[toxins_status] > row_counter >= row_start_dictionary[toxins_status]:
                 return approved_string
             else:
-                denied_string = "NO"
                 return denied_string
 
 # MULTI TABLE MAKING FUNCTIONS
