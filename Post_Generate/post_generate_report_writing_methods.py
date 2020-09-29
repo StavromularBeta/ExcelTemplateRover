@@ -136,17 +136,10 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
                 row_counter = 0
                 row_list = [table_headers[split_list_counter]]
                 while row_counter <= 109:
-                    analyte_name = str(self.sample_data['pesticides/toxins list'].loc[row_counter])
-                    reference_recovery_value = self.sig_fig_and_rounding_for_values(str(self.sample_data["Curve Recovery"].loc[row_counter]))
-                    sample_string = "& "
-                    for sample in sub_list:
-                        sample_string += self.sig_fig_and_rounding_for_values(str(self.sample_data[sample[0]].loc[row_counter])) + " &"
-                    loq_string = " "
-                    for item in loq_types_list[split_list_counter]:
-                        loq_identifier_string = "LOQ (" + item + ")"
-                        loq_value = self.sig_fig_and_rounding_for_values(str(self.sample_data[loq_identifier_string].loc[row_counter]))
-                        loq_string += loq_value + " &"
-                    multi_table_row = analyte_name + sample_string + loq_string + " ND & " + reference_recovery_value + r" \\"
+                    multi_table_row = self.make_multi_table_row(row_counter,
+                                                                split_list_counter,
+                                                                sub_list,
+                                                                loq_types_list)
                     if row_counter in [40, 80]:
                         end_table_line = r"""\end{tabular}
                     \end{table}
@@ -171,6 +164,23 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
                     except KeyError:
                         self.table_row_lists_dictionary[jobnumber] = row_list
                     split_list_counter += 1
+
+    def make_multi_table_row(self, row_counter, split_list_counter, sub_list, loq_types_list):
+        analyte_name = str(self.sample_data['pesticides/toxins list'].loc[row_counter])
+        reference_recovery_value = self.sig_fig_and_rounding_for_values(
+            str(self.sample_data["Curve Recovery"].loc[row_counter]))
+        sample_string = "& "
+        for sample in sub_list:
+            sample_string += self.sig_fig_and_rounding_for_values(
+                str(self.sample_data[sample[0]].loc[row_counter])) + " &"
+        loq_string = " "
+        for item in loq_types_list[split_list_counter]:
+            loq_identifier_string = "LOQ (" + item + ")"
+            loq_value = self.sig_fig_and_rounding_for_values(
+                str(self.sample_data[loq_identifier_string].loc[row_counter]))
+            loq_string += loq_value + " &"
+        multi_table_row = analyte_name + sample_string + loq_string + " ND & " + reference_recovery_value + r" \\"
+        return multi_table_row
 
     def multi_table_splitter(self, samples):
         counter = 0
