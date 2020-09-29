@@ -26,9 +26,11 @@ class ReportMethods:
         self.combine_headers_tables_and_footers()
         return self.finished_reports_dictionary
 
+# SINGLE AND MULTIPLE REPORT SPLITTING FUNCTIONS
+
     def split_reports_into_single_or_multi(self):
         for sample in self.single_reports_dictionary.items():
-            self.single_list.append(sample)
+            self.single_list.append([sample])
         for key in self.sample_data["Job List"]:
             matching = [(bob, marley) for bob, marley in self.multiple_reports_dictionary.items() if
                         str(key)[0:6] in str(bob)]
@@ -36,6 +38,7 @@ class ReportMethods:
                 self.single_list.append(matching)
             else:
                 self.multi_list.append(matching)
+# SINGLE TABLE MAKING FUNCTIONS
 
     def make_single_tables(self):
         for sample in self.single_list:
@@ -43,55 +46,74 @@ class ReportMethods:
             type = sample[0][1][0]
             loq_string = "LOQ (" + type + ")"
             table_head_string = r"""\newline
-    \renewcommand{\arraystretch}{0.9}
-    \begin{table}[h!]\centering
-    \small
-    \begin{tabular}{p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
-                    p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
-                    p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
-                    p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
-                    p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}
-                    }
-    \textbf{Analyte} & \textbf{Sample 1}  & \textbf{\small Blank} &  $\mathbf{\small """ +\
-                                loq_string + r"""}$ & \textbf{\small \% Ref} \\
-    & (ng/g) & (ng/g) & (ng/g) & (Recovery) \\
-    \hline
-    \hline"""
-            row_list = [table_head_string]
-            for item in self.sample_data[sample[0][0]]:
-                data_value_ppm = str(item)
-                analyte_name = str(self.sample_data['pesticides/toxins list'].loc[row_counter])
-                reference_recovery_value = str(self.sample_data["Curve Recovery"].loc[row_counter])
-                loq_value = str(self.sample_data[loq_string].loc[row_counter])
-                blank_value = "ND"
-                latex_table_row = analyte_name +\
-                    " & " +\
-                    self.sig_fig_and_rounding_for_values(data_value_ppm) +\
-                    " & " +\
-                    blank_value +\
-                    " & " +\
-                    self.sig_fig_and_rounding_for_values(loq_value) +\
-                    " & " +\
-                    self.sig_fig_and_rounding_for_values(reference_recovery_value) + r" \\"
-                if row_counter in [40, 80]:
-                    end_table_line = r"""\end{tabular}
+\renewcommand{\arraystretch}{1.1}
+\begin{table}[h!]\centering
+\small
+\begin{tabular}{p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
+                p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
+                p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
+                p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
+                p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}
+                }
+\textbf{Analyte} & \textbf{Sample 1}  & \textbf{\small Blank} &  $\mathbf{\small """ +\
+loq_string + r"""}$ & \textbf{\small \% Ref} \\
+& (ng/g) & (ng/g) & (ng/g) & (Recovery) \\
+\hline
+\hline"""
+            end_table_line = r"""\end{tabular}
 \end{table}
 \newpage
 \newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}"""
+            three_table_end_line = r'''\end{tabular}
+\end{table}
+\newpage
+\newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}'''
+            row_list = [table_head_string]
+            for item in self.sample_data[sample[0][0]]:
+                latex_table_row = self.make_single_table_row(item, row_counter, loq_string)
+                row_addition_decision = self.single_table_row_inclusion_decider(row_counter)
+                if row_addition_decision == "END":
                     row_list.append(end_table_line)
                     row_list.append(table_head_string)
                     row_list.append(latex_table_row)
+                elif row_addition_decision == "ADD":
+                    row_list.append(latex_table_row)
                 else:
-                    if 100 > row_counter >= 3:
-                        row_list.append(latex_table_row)
-                    else:
-                        pass
+                    pass
                 row_counter += 1
-            row_list.append(r'''\end{tabular}
-\end{table}
-\newpage
-\newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}''')
+            row_list.append(three_table_end_line)
             self.table_row_lists_dictionary[sample[0][0]] = row_list
+
+    def make_single_table_row(self, data_value, row_counter, loq_string):
+        data_value_ppm = str(data_value)
+        analyte_name = str(self.sample_data['pesticides/toxins list'].loc[row_counter])
+        reference_recovery_value = str(self.sample_data["Curve Recovery"].loc[row_counter])
+        loq_value = str(self.sample_data[loq_string].loc[row_counter])
+        blank_value = "ND"
+        latex_table_row = analyte_name + \
+                          " & " + \
+                          self.sig_fig_and_rounding_for_values(data_value_ppm) + \
+                          " & " + \
+                          blank_value + \
+                          " & " + \
+                          self.sig_fig_and_rounding_for_values(loq_value) + \
+                          " & " + \
+                          self.sig_fig_and_rounding_for_values(reference_recovery_value) + r" \\"
+        return latex_table_row
+
+    def single_table_row_inclusion_decider(self, row_counter):
+        if row_counter in [40, 80]:
+            end_string = "END"
+            return end_string
+        else:
+            if 100 > row_counter >= 3:
+                approved_string = "ADD"
+                return approved_string
+            else:
+                denied_string = "NO"
+                return denied_string
+
+# MULTI TABLE MAKING FUNCTIONS
 
     def make_multi_tables(self):
         for samples in self.multi_list:
@@ -109,12 +131,12 @@ class ReportMethods:
                     sample_string = "& "
                     for sample in sub_list:
                         sample_string += self.sig_fig_and_rounding_for_values(str(self.sample_data[sample[0]].loc[row_counter])) + " &"
-                    loq_string = "& "
+                    loq_string = " "
                     for item in loq_types_list[split_list_counter]:
                         loq_identifier_string = "LOQ (" + item + ")"
                         loq_value = self.sig_fig_and_rounding_for_values(str(self.sample_data[loq_identifier_string].loc[row_counter]))
                         loq_string += loq_value + " &"
-                    multi_table_row = analyte_name + sample_string + " ND " + loq_string + reference_recovery_value + r" \\"
+                    multi_table_row = analyte_name + sample_string + loq_string + " ND & " + reference_recovery_value + r" \\"
                     if row_counter in [40, 80]:
                         end_table_line = r"""\end{tabular}
                     \end{table}
@@ -139,6 +161,79 @@ class ReportMethods:
                     except KeyError:
                         self.table_row_lists_dictionary[jobnumber] = row_list
                     split_list_counter += 1
+
+    def multi_table_splitter(self, samples):
+        counter = 0
+        split_list = []
+        small_list = []
+        for item in samples:
+            if counter == 2:
+                small_list.append(item)
+                split_list.append(small_list)
+                small_list = []
+                counter = 0
+            else:
+                small_list.append(item)
+                counter += 1
+        if small_list:
+            split_list.append(small_list)
+        return split_list
+
+    def multi_table_loq_fetcher(self, split_list):
+        list_of_loq_lists = []
+        loq_list = []
+        for job in split_list:
+            for sample in job:
+                loq_list.append(sample[1][0])
+            loq_list = list(set(loq_list))
+            list_of_loq_lists.append(loq_list)
+            loq_list = []
+        return list_of_loq_lists
+
+    def multi_table_header_creator(self, split_list, loq_types_list):
+        header_strings = []
+        item_counter = 0
+        for item in split_list:
+            header_string_1 = r"""\newline
+\renewcommand{\arraystretch}{1.1}
+\begin{table}[h!]\centering
+\small
+\begin{tabular}{p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|"""
+            header_string_2 = r"""p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
+p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
+}"""
+            columns_required = len(item) + len(loq_types_list[item_counter])
+            space_per_column = 0.60 / columns_required
+            extra_column_string = r"""p{\dimexpr""" +\
+                                  str(space_per_column) +\
+                                  r"""\textwidth-2\tabcolsep-\arrayrulewidth\relax}|"""
+            for number in range(columns_required):
+                header_string_1 += extra_column_string
+            header_string_1 += header_string_2
+            header_strings.append(header_string_1)
+            first_row_string = r"\textbf{Analyte} & "
+            second_row_string = r"& "
+            for subitem in item:
+                sample_number = subitem[0][-1]
+                first_row_string += r"\textbf{Sample " + str(sample_number) + "} & "
+                second_row_string += "(ng/g) & "
+            for item in loq_types_list[item_counter]:
+                loq_string = "LOQ ( " + item + " )"
+                first_row_string += r"\textbf{\small " + loq_string + "} & "
+                second_row_string += r"(ng/g) & "
+            first_row_string += r"\textbf{\small Blank} & "
+            second_row_string += r"(ng/g) & "
+            first_row_string += r" \textbf{\small \% Ref} \\"
+            second_row_string += r" (Recovery) \\"
+            header_strings[item_counter] += '\n' +\
+                                            first_row_string +\
+                                            '\n' +\
+                                            second_row_string +\
+                                            '\n' + r'\hline\hline'
+            item_counter += 1
+        return header_strings
+
+# SHARED FUNCTIONS
 
     def generate_footer(self):
         footer_string = r"""
@@ -223,78 +318,6 @@ class ReportMethods:
             return value
         else:
             return "okay"
-
-    def multi_table_splitter(self, samples):
-        counter = 0
-        split_list = []
-        small_list = []
-        for item in samples:
-            if counter == 2:
-                small_list.append(item)
-                split_list.append(small_list)
-                small_list = []
-                counter = 0
-            else:
-                small_list.append(item)
-                counter += 1
-        if small_list:
-            split_list.append(small_list)
-        print(split_list)
-        return split_list
-
-    def multi_table_loq_fetcher(self, split_list):
-        list_of_loq_lists = []
-        loq_list = []
-        for job in split_list:
-            for sample in job:
-                loq_list.append(sample[1][0])
-            loq_list = list(set(loq_list))
-            list_of_loq_lists.append(loq_list)
-            loq_list = []
-        return list_of_loq_lists
-
-    def multi_table_header_creator(self, split_list, loq_types_list):
-        header_strings = []
-        item_counter = 0
-        for item in split_list:
-            header_string_1 = r"""\newline
-\renewcommand{\arraystretch}{0.9}
-\begin{table}[h!]\centering
-\small
-\begin{tabular}{p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|"""
-            header_string_2 = r"""p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
-p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
-}"""
-            columns_required = len(item) + len(loq_types_list[item_counter])
-            space_per_column = 0.60 / columns_required
-            extra_column_string = r"""p{\dimexpr""" +\
-                                  str(space_per_column) +\
-                                  r"""\textwidth-2\tabcolsep-\arrayrulewidth\relax}|"""
-            for number in range(columns_required):
-                header_string_1 += extra_column_string
-            header_string_1 += header_string_2
-            header_strings.append(header_string_1)
-            first_row_string = r"\textbf{Analyte} & "
-            second_row_string = r"& "
-            for subitem in item:
-                sample_number = subitem[0][-1]
-                first_row_string += "Sample " + str(sample_number) + " & "
-                second_row_string += "(ng/g) & "
-            for item in loq_types_list[item_counter]:
-                loq_string = "LOQ ( " + item + " )"
-                first_row_string += r"\textbf{\small " + loq_string + "} & "
-                second_row_string += r"(ng/g) & "
-            first_row_string += r"\textbf{\small Blank} & "
-            second_row_string += r"(ng/g) & "
-            first_row_string += r" \textbf{\small \% Ref} \\"
-            second_row_string += r" (Recovery) \\"
-            header_strings[item_counter] += '\n' +\
-                                            first_row_string +\
-                                            '\n' +\
-                                            second_row_string
-            item_counter += 1
-        return header_strings
-
             
 
 
