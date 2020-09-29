@@ -15,10 +15,12 @@ class OrganizeMethods:
             if item == 'Single':
                 self.single_reports_dictionary[self.updates["sample numbers"][counter]] = \
                     [self.updates['sample type'][counter],
-                     self.updates['report type'][counter]]
+                     self.updates['report type'][counter],
+                     self.updates['pest toxins'][counter]]
             else:
                 self.multiple_reports_dictionary[self.updates["sample numbers"][counter]] = \
                     [self.updates['sample type'][counter],
-                     self.updates['report type'][counter]]
+                     self.updates['report type'][counter],
+                     self.updates['pest toxins'][counter]]
             counter += 1
         return self.single_reports_dictionary, self.multiple_reports_dictionary

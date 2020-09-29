@@ -32,6 +32,9 @@ class BatchWindow(Tk.Frame):
         #Report type list
         self.report_type_option_list = []
         self.updated_report_type_option_list = []
+        #Peticides and/or Toxins list
+        self.pest_toxins_option_list = []
+        self.updated_pest_toxins_option_list = []
         #Single or multi list
         self.single_or_multi_list = []
         self.updated_single_or_multi_list = []
@@ -98,13 +101,23 @@ class BatchWindow(Tk.Frame):
             oil_recovery_text.insert(Tk.END, "No oil spike.")
         oil_recovery_text.config(state="disabled")
         oil_recovery_text.grid(row=1, column=2)
+        # Paper Spike
+        oil_recovery_label = Tk.Label(self.recovery_data_frame, text="Paper Spike", font=self.header_font)
+        oil_recovery_label.grid(row=0, column=3, sticky=Tk.W)
+        oil_recovery_text = Tk.Text(self.recovery_data_frame, width=20, height=20)
+        try:
+            oil_recovery_text.insert(Tk.END, sample_dictionary["Spike (Paper)"].to_string())
+        except KeyError:
+            oil_recovery_text.insert(Tk.END, "No paper spike.")
+        oil_recovery_text.config(state="disabled")
+        oil_recovery_text.grid(row=1, column=3)
         #CS Spike
         cs_recovery_label = Tk.Label(self.recovery_data_frame, text="Curve Recovery", font=self.header_font)
-        cs_recovery_label.grid(row=0, column=3, sticky=Tk.W)
-        cs_recovery_text = Tk.Text(self.recovery_data_frame, width=40, height=20)
+        cs_recovery_label.grid(row=0, column=4, sticky=Tk.W)
+        cs_recovery_text = Tk.Text(self.recovery_data_frame, width=30, height=20)
         cs_recovery_text.insert(Tk.END, sample_dictionary["Curve Recovery"].to_string())
         cs_recovery_text.config(state="disabled")
-        cs_recovery_text.grid(row=1, column=3)
+        cs_recovery_text.grid(row=1, column=4)
 
     def create_header_frames(self, header_dictionary):
         counter = 0
@@ -227,6 +240,7 @@ class BatchWindow(Tk.Frame):
         Tk.Label(self.samples_checklist_frame, text="Type", font=self.header_font).grid(row=0, column=1)
         Tk.Label(self.samples_checklist_frame, text="Analyte List", font=self.header_font).grid(row=0, column=2)
         Tk.Label(self.samples_checklist_frame, text="single/multi", font=self.header_font).grid(row=0, column=3)
+        Tk.Label(self.samples_checklist_frame, text="Toxins?", font=self.header_font).grid(row=0, column=4)
         for key, value in sample_dictionary.items():
             try:
                 if isinstance(int(key[0:6]), int):
@@ -256,9 +270,19 @@ class BatchWindow(Tk.Frame):
                                                       *multi_or_single_choices)
                     multi_single_menu.grid(row=counter, column=3)
                     self.single_or_multi_list.append((key, multi_single_menu, multi_or_single_variable))
+                    pesticides_and_or_toxins_variable = Tk.StringVar(self.samples_checklist_frame)
+                    pesticides_and_or_toxins_choices = {'Pesticides', 'Both', 'Toxins Only'}
+                    pesticides_and_or_toxins_variable.set('Pesticides')
+                    pesticides_and_or_toxins_menu = Tk.OptionMenu(self.samples_checklist_frame,
+                                                                  pesticides_and_or_toxins_variable,
+                                                                  *pesticides_and_or_toxins_choices)
+                    pesticides_and_or_toxins_menu.grid(row=counter, column=4)
+                    self.pest_toxins_option_list.append((key,
+                                                         pesticides_and_or_toxins_menu,
+                                                         pesticides_and_or_toxins_variable))
                     sample_name_entry = Tk.Entry(self.samples_checklist_frame)
-                    Tk.Label(self.samples_checklist_frame, text="   Sample name: ").grid(row=counter, column=4)
-                    sample_name_entry.grid(row=counter, column=5)
+                    Tk.Label(self.samples_checklist_frame, text="   Sample name: ").grid(row=counter, column=5)
+                    sample_name_entry.grid(row=counter, column=6)
                     self.sample_name_list.append((key, sample_name_entry))
                     counter += 1
             except ValueError:
@@ -277,12 +301,14 @@ class BatchWindow(Tk.Frame):
         self.updated_sample_type_option_list = [var.get() for item, menu, var in self.sample_type_option_list]
         self.updated_report_type_option_list = [var.get() for item, menu, var in self.report_type_option_list]
         self.updated_single_or_multi_list = [var.get() for item, menu, var in self.single_or_multi_list]
+        self.updated_pest_toxins_option_list = [var.get() for item, menu, var in self.pest_toxins_option_list]
         self.updated_header_information_list = [var.get()
                                                 for key, variables in self.header_information_list for var in variables]
         self.updated_sample_name_list = [[item, var.get()] for item, var in self.sample_name_list]
         self.updated_dictionary['sample type'] = self.updated_sample_type_option_list
         self.updated_dictionary['report type'] = self.updated_report_type_option_list
         self.updated_dictionary['single multi'] = self.updated_single_or_multi_list
+        self.updated_dictionary['pest toxins'] = self.updated_pest_toxins_option_list
         self.updated_dictionary['headers'] = self.updated_header_information_list
         self.updated_dictionary['sample names'] = self.updated_sample_name_list
         self.updated_dictionary['sample numbers'] = self.sample_number_list
