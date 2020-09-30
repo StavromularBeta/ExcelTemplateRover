@@ -132,6 +132,10 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
             split_list = self.multi_table_splitter(samples)
             loq_types_list = self.multi_table_loq_fetcher(split_list)
             table_headers = self.multi_table_header_creator(split_list, loq_types_list)
+            end_table_line = r"""\end{tabular}
+\end{table}
+\newpage
+\newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}"""
             for sub_list in split_list:
                 row_counter = 0
                 row_list = [table_headers[split_list_counter]]
@@ -140,19 +144,15 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
                                                                 split_list_counter,
                                                                 sub_list,
                                                                 loq_types_list)
-                    if row_counter in [40, 80]:
-                        end_table_line = r"""\end{tabular}
-                    \end{table}
-                    \newpage
-                    \newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}"""
+                    row_addition_decision = self.multi_table_row_inclusion_decider(row_counter, sub_list)
+                    if row_addition_decision == "END":
                         row_list.append(end_table_line)
                         row_list.append(table_headers[split_list_counter])
                         row_list.append(multi_table_row)
+                    elif row_addition_decision == "ADD":
+                        row_list.append(multi_table_row)
                     else:
-                        if 100 > row_counter >= 3:
-                            row_list.append(multi_table_row)
-                        else:
-                            pass
+                        pass
                     row_counter += 1
                 else:
                     row_list.append(r'''\end{tabular}
@@ -181,6 +181,29 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
             loq_string += loq_value + " &"
         multi_table_row = analyte_name + sample_string + loq_string + " ND & " + reference_recovery_value + r" \\"
         return multi_table_row
+
+    def multi_table_row_inclusion_decider(self, row_counter, sub_list):
+        print(sub_list)
+        toxins_status = sub_list[0][1][2]
+        end_string = "END"
+        denied_string = "NO"
+        approved_string = "ADD"
+        row_end_dictionary = {"Pesticides": 100,
+                              "Toxins Only": 106,
+                              "Both": 106}
+        row_start_dictionary = {"Pesticides": 3,
+                                "Toxins Only": 100,
+                                "Both": 3}
+        if row_counter in [40, 80]:
+            if toxins_status == "Toxins Only":
+                return denied_string
+            else:
+                return end_string
+        else:
+            if row_end_dictionary[toxins_status] > row_counter >= row_start_dictionary[toxins_status]:
+                return approved_string
+            else:
+                return denied_string
 
     def multi_table_splitter(self, samples):
         counter = 0
