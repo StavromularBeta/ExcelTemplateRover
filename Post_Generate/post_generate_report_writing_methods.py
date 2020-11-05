@@ -85,20 +85,37 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
             self.table_row_lists_dictionary[sample[0][0]] = row_list
 
     def make_single_table_row(self, data_value, row_counter, loq_string):
+        bold_line = False
         data_value_ppm = str(data_value)
+        try:
+            if float(data_value_ppm) > 0:
+                bold_line = True
+        except ValueError:
+            pass
         analyte_name = str(self.sample_data['pesticides/toxins list'].loc[row_counter])
         reference_recovery_value = str(self.sample_data["Curve Recovery"].loc[row_counter])
         loq_value = str(self.sample_data[loq_string].loc[row_counter])
         blank_value = "ND"
-        latex_table_row = analyte_name + \
-                          " & " + \
-                          self.sig_fig_and_rounding_for_values(data_value_ppm) + \
-                          " & " + \
-                          blank_value + \
-                          " & " + \
-                          self.sig_fig_and_rounding_for_values(loq_value) + \
-                          " & " + \
-                          self.sig_fig_and_rounding_for_values(reference_recovery_value) + r" \\"
+        if bold_line:
+            latex_table_row = r"\textbf{" + analyte_name + \
+                              " }& " + \
+                              r"\textbf{" + self.sig_fig_and_rounding_for_values(data_value_ppm) + \
+                              " }& " + \
+                              r"\textbf{" + blank_value + \
+                              " }& " + \
+                              r"\textbf{" + self.sig_fig_and_rounding_for_values(loq_value) + \
+                              " }& " + \
+                              r"\textbf{" + self.sig_fig_and_rounding_for_values(reference_recovery_value) + r" }\\"
+        else:
+            latex_table_row = analyte_name + \
+                              " & " + \
+                              self.sig_fig_and_rounding_for_values(data_value_ppm) + \
+                              " & " + \
+                              blank_value + \
+                              " & " + \
+                              self.sig_fig_and_rounding_for_values(loq_value) + \
+                              " & " + \
+                              self.sig_fig_and_rounding_for_values(reference_recovery_value) + r" \\"
         return latex_table_row
 
     def single_table_row_inclusion_decider(self, row_counter, sample):
@@ -134,6 +151,7 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
             table_headers = self.multi_table_header_creator(split_list, loq_types_list)
             end_table_line = r"""\end{tabular}
 \end{table}
+\textbf{continued on next page...}
 \newpage
 \newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}"""
             for sub_list in split_list:
@@ -169,17 +187,47 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
         analyte_name = str(self.sample_data['pesticides/toxins list'].loc[row_counter])
         reference_recovery_value = self.sig_fig_and_rounding_for_values(
             str(self.sample_data["Curve Recovery"].loc[row_counter]))
-        sample_string = "& "
+        sample_string = " "
+        bold_line = False
         for sample in sub_list:
-            sample_string += self.sig_fig_and_rounding_for_values(
-                str(self.sample_data[sample[0]].loc[row_counter])) + " &"
+            sample_string_value = self.sig_fig_and_rounding_for_values(
+                str(self.sample_data[sample[0]].loc[row_counter]))
+            try:
+                if float(sample_string_value):
+                    bold_line = True
+                else:
+                    pass
+            except ValueError:
+                pass
+            if bold_line:
+                sample_string += r'\textbf{' + sample_string_value + "} &"
+            else:
+                sample_string += sample_string_value + " &"
         loq_string = " "
         for item in loq_types_list[split_list_counter]:
             loq_identifier_string = "LOQ (" + item + ")"
             loq_value = self.sig_fig_and_rounding_for_values(
                 str(self.sample_data[loq_identifier_string].loc[row_counter]))
-            loq_string += loq_value + " &"
-        multi_table_row = analyte_name + sample_string + loq_string + " ND & " + reference_recovery_value + r" \\"
+            if bold_line:
+                loq_string += r'\textbf{' + loq_value + "} &"
+            else:
+                loq_string += loq_value + " &"
+        if bold_line:
+            multi_table_row = r'\textbf{' + analyte_name + \
+                              "}&" + \
+                              sample_string + \
+                              loq_string + \
+                              r" \textbf{ND} & " + \
+                              r'\textbf{' + reference_recovery_value + \
+                              r"} \\"
+        else:
+            multi_table_row = analyte_name +\
+                              "&" +\
+                              sample_string +\
+                              loq_string +\
+                              " ND & " +\
+                              reference_recovery_value +\
+                              r" \\"
         return multi_table_row
 
     def multi_table_row_inclusion_decider(self, row_counter, sub_list):
@@ -280,7 +328,7 @@ p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
 
     def generate_footer(self):
         footer_string = r"""
-    *Analysis includes all 96 target compounds on the Health Canada Mandatory List Oct 2018\newline
+    *Analysis includes all 96 target compounds on the Health Canada Mandatory List Aug 2019\newline
     **Trace = presence \& identity of compound verified, value below limit of quantification\newline
     As per international standards, all observed values are reported even if they are below LOQ's.\newline
     LOQ or MDL's are interpretative \& given as guidance only \& do not affect reported results.\newline\newline
@@ -349,6 +397,9 @@ p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
                        "CS4",
                        "Arabica gum",
                        "pallet",
+                       "Candy",
+                       "Cheesecloth",
+                       "Cream",
                        "na"]:
             return value
         elif "-" in value:
