@@ -62,6 +62,7 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
 \hline"""
             end_table_line = r"""\end{tabular}
 \end{table}
+\textbf{continued on next page...}
 \newpage
 \newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}"""
             three_table_end_line = r'''\end{tabular}
@@ -105,7 +106,8 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
                               " }& " + \
                               r"\textbf{" + self.sig_fig_and_rounding_for_values(loq_value) + \
                               " }& " + \
-                              r"\textbf{" + self.sig_fig_and_rounding_for_values(reference_recovery_value) + r" }\\"
+                              r"\textbf{" + self.sig_fig_and_rounding_for_values(reference_recovery_value) +\
+                              r" }\\" + "\n" + r"\hline"
         else:
             latex_table_row = analyte_name + \
                               " & " + \
@@ -115,7 +117,8 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
                               " & " + \
                               self.sig_fig_and_rounding_for_values(loq_value) + \
                               " & " + \
-                              self.sig_fig_and_rounding_for_values(reference_recovery_value) + r" \\"
+                              self.sig_fig_and_rounding_for_values(reference_recovery_value) +\
+                              r" \\" + "\n" + r"\hline"
         return latex_table_row
 
     def single_table_row_inclusion_decider(self, row_counter, sample):
@@ -219,7 +222,8 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
                               loq_string + \
                               r" \textbf{ND} & " + \
                               r'\textbf{' + reference_recovery_value + \
-                              r"} \\"
+                              r"} \\" +\
+                              "\n" + "\hline"
         else:
             multi_table_row = analyte_name +\
                               "&" +\
@@ -227,7 +231,8 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
                               loq_string +\
                               " ND & " +\
                               reference_recovery_value +\
-                              r" \\"
+                              r" \\" +\
+                              "\n" + "\hline"
         return multi_table_row
 
     def multi_table_row_inclusion_decider(self, row_counter, sub_list):
