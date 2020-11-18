@@ -20,10 +20,10 @@ class FileWritingMethods:
         for key, value in self.finished_reports_dictionary.items():
             try:
                 jobnumber = str(key)
-                filename = target[:-1] + jobnumber[0:6] + '\\' + jobnumber + '_raw.tex'
+                filename = target[:-1] + jobnumber[0:6] + '\\' + jobnumber + '_' + value[1] + '_raw.tex'
                 filename = filename.replace('/', '-')
                 with self.safe_open_w(filename) as f:
-                    f.write(value)
+                    f.write(value[0])
             except OSError:
                 pass
 

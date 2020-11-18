@@ -13,14 +13,34 @@ class OrganizeMethods:
         counter = 0
         for item in self.updates['single multi']:
             if item == 'Single':
-                self.single_reports_dictionary[self.updates["sample numbers"][counter]] = \
-                    [self.updates['sample type'][counter],
-                     self.updates['report type'][counter],
-                     self.updates['pest toxins'][counter]]
+                if self.updates['pest toxins'][counter] == "Both":
+                    self.single_reports_dictionary[self.updates["sample numbers"][counter]] = \
+                        [self.updates['sample type'][counter],
+                         self.updates['report type'][counter],
+                         "Pesticides"]
+                    self.single_reports_dictionary[self.updates["sample numbers"][counter]] = \
+                        [self.updates['sample type'][counter],
+                         self.updates['report type'][counter],
+                         "Toxins Only"]
+                else:
+                    self.single_reports_dictionary[self.updates["sample numbers"][counter]] = \
+                        [self.updates['sample type'][counter],
+                         self.updates['report type'][counter],
+                         self.updates['pest toxins'][counter]]
             else:
-                self.multiple_reports_dictionary[self.updates["sample numbers"][counter]] = \
-                    [self.updates['sample type'][counter],
-                     self.updates['report type'][counter],
-                     self.updates['pest toxins'][counter]]
+                if self.updates['pest toxins'][counter] == "Both":
+                    self.multiple_reports_dictionary[self.updates["sample numbers"][counter]] = \
+                        [self.updates['sample type'][counter],
+                         self.updates['report type'][counter],
+                         "Pesticides"]
+                    self.multiple_reports_dictionary[self.updates["sample numbers"][counter]] = \
+                        [self.updates['sample type'][counter],
+                         self.updates['report type'][counter],
+                         "Toxins Only"]
+                else:
+                    self.multiple_reports_dictionary[self.updates["sample numbers"][counter]] = \
+                        [self.updates['sample type'][counter],
+                         self.updates['report type'][counter],
+                         self.updates['pest toxins'][counter]]
             counter += 1
         return self.single_reports_dictionary, self.multiple_reports_dictionary

@@ -38,10 +38,12 @@ class ReportMethods:
                 self.single_list.append(matching)
             else:
                 self.multi_list.append(matching)
+
 # SINGLE TABLE MAKING FUNCTIONS
 
     def make_single_tables(self):
         for sample in self.single_list:
+            report_type = sample[0][1][2]
             row_counter = 0
             type = sample[0][1][0]
             loq_string = "LOQ (" + type + ")"
@@ -83,7 +85,7 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
                     pass
                 row_counter += 1
             row_list.append(three_table_end_line)
-            self.table_row_lists_dictionary[sample[0][0]] = row_list
+            self.table_row_lists_dictionary[sample[0][0]] = [row_list, report_type]
 
     def make_single_table_row(self, data_value, row_counter, loq_string):
         bold_line = False
@@ -147,6 +149,9 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
 
     def make_multi_tables(self):
         for samples in self.multi_list:
+            if not samples:
+                break
+            report_type = samples[0][1][2]
             split_list_counter = 0
             jobnumber = samples[0][0][0:6]
             split_list = self.multi_table_splitter(samples)
@@ -181,9 +186,9 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
 \newpage
 \newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}''')
                     try:
-                        self.table_row_lists_dictionary[jobnumber] += row_list
+                        self.table_row_lists_dictionary[jobnumber][0] += row_list
                     except KeyError:
-                        self.table_row_lists_dictionary[jobnumber] = row_list
+                        self.table_row_lists_dictionary[jobnumber] = [row_list, report_type]
                     split_list_counter += 1
 
     def make_multi_table_row(self, row_counter, split_list_counter, sub_list, loq_types_list):
@@ -236,7 +241,6 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
         return multi_table_row
 
     def multi_table_row_inclusion_decider(self, row_counter, sub_list):
-        print(sub_list)
         toxins_status = sub_list[0][1][2]
         end_string = "END"
         denied_string = "NO"
@@ -263,7 +267,7 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
         split_list = []
         small_list = []
         for item in samples:
-            if counter == 2:
+            if counter == 3:
                 small_list.append(item)
                 split_list.append(small_list)
                 small_list = []
@@ -332,14 +336,14 @@ p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
 # SHARED FUNCTIONS
 
     def generate_footer(self):
-        footer_string = r"""
+        pesticides_footer_string = r"""
     *Analysis includes all 96 target compounds on the Health Canada Mandatory List Aug 2019\newline
     **Trace = presence \& identity of compound verified, value below limit of quantification\newline
     As per international standards, all observed values are reported even if they are below LOQ's.\newline
     LOQ or MDL's are interpretative \& given as guidance only \& do not affect reported results.\newline\newline
     Method: Sample is solvent extracted, then cleaned using SPE (QuEChERS) methods. Multi-\newline
     residue analysis is carried out using UPLC-ESI-MS/MS/APCI \& GC-MS: SPME. Detection of\newline
-    compounds meet or exceed HC requirements. Procedure ref AOAC 2007.01; USP <561><565>, eu 2.0813.\newline
+    compounds meet or exceed HC requirements. Procedure ref AOAC 2007.01; USP $<$561$><$565$>$, EU 2.0813.\newline
     methods fully validated.
     \newline\newline\newline
     R. Bilodeau \phantom{aaaaaaaaaaaaaaaaaaaaaaaaaxaaaaaasasssssssssssss}H. Hartmann\\ Analytical Chemist: \underline{\hspace{3cm}}{ \hspace{3.2cm} Sr. Analytical Chemist: \underline{\hspace{3cm}}       
@@ -348,17 +352,44 @@ p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
     \fancyfoot[L]{\textbf{T:} 250 656 1334\\ \textbf{E:} info@mblabs.com}
     \end{document}
      """
-        return footer_string
+        toxins_footer_string = r"""
+    Method: Sample is solvent extracted, then cleaned using SPE (QuEChERS) methods. Multi-\newline
+    residue analysis is carried out using UPLC-ESI-MS/MS/APCI \& GC-MS: SPME. Detection of\newline
+    compounds meet or exceed HC requirements. Procedure ref AOAC 2007.01; USP $<$561$><$565$>$, EU 2.0813.\newline
+    methods fully validated.
+	\newline\newline
+	So = Standard deviation at zero analyte concentration; method detection limit \newline
+	ND = none detected n/a = not applicable \newline
+	ppb = parts per billion (ng/g) \newline\newline
+	Mycotoxin - Maximum Tolerance Levels -CFIA FAO Food \& Nutrition Paper 64, 1997\newline
+	\phantom{aaaaaaaaaal} CFIA - Fact Sheet - Mycotoxins LL Charmley \& HL Trenholm May 2010 \newline\newline
+	Afalatoxin:\phantom{aaaaaa} 15 ppb \phantom{aaaaa} nut products \phantom{la} Canada\newline
+	\phantom{aaaaaaaaaaaaaala}	20 ppb \phantom{aaaaa} all foods \phantom{aaaala} USA\newline\newline
+	Ochratoxin A: \phantom{aaa}20 ppb \phantom{aaaaa} Cannabis \phantom{aaaaa} Health Canada\newline
+	\phantom{aaaaaaaaaaaaaaal}	5-10 ppb \phantom{aaal} food \& spices\phantom{al}  EU
+    \newline\newline\newline
+    R. Bilodeau \phantom{aaaaaaaaaaaaaaaaaaaaaaaaaxaaaaaasasssssssssssss}H. Hartmann\\ Analytical Chemist: \underline{\hspace{3cm}}{ \hspace{3.2cm} Sr. Analytical Chemist: \underline{\hspace{3cm}}       
+    \fancyfoot[C]{\textbf{MB Laboratories Ltd.}\\ \textbf{Web:} www.mblabs.com}
+    \fancyfoot[R]{\textbf{Mail:} PO Box 2103\\ Sidney, B.C., V8L 356}
+    \fancyfoot[L]{\textbf{T:} 250 656 1334\\ \textbf{E:} info@mblabs.com}
+    \end{document}
+"""
+        return [pesticides_footer_string, toxins_footer_string]
 
     def combine_headers_tables_and_footers(self):
         for key, value in self.table_row_lists_dictionary.items():
             header = self.latex_header_and_sample_list_dictionary[key[0:6]]
             footer = self.generate_footer()
             table_string = ''
-            for item in value:
+            for item in value[0]:
                 table_string += item + '\n'
-            report = header + table_string[:-82] + footer
-            self.finished_reports_dictionary[key] = report
+            if value[1] == "Pesticides":
+                report = header + table_string[:-82] + footer[0]
+            elif value[1] == "Toxins Only":
+                report = header + table_string[:-82] + footer[1]
+            else:
+                report = header + table_string[:-82] + footer[0]
+            self.finished_reports_dictionary[key] = [report, value[1]]
 
     def sig_fig_and_rounding_for_values(self, value):
         check = self.sig_fig_rounder_pre_filter(value)
@@ -405,6 +436,7 @@ p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
                        "Candy",
                        "Cheesecloth",
                        "Cream",
+                       "Syringe",
                        "na"]:
             return value
         elif "-" in value:
