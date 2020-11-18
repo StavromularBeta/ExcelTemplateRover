@@ -24,7 +24,7 @@ class ReportMethods:
                                    "Acephate": 18.00,
                                    "Acequinocyl": 26.30,
                                    "Acetamiprid": 6.09,
-                                   "Alidcarb": 51.36,
+                                   "Aldicarb": 51.36,
                                    "Allethrin": 47.41,
                                    "Azadirachtin": 695,
                                    "Azoxystrobin": 7.34,
@@ -92,7 +92,7 @@ class ReportMethods:
                                    "Phenothrin": 45.40,
                                    "Phosmet": 10.40,
                                    "Piperonyl butoxide": 47.40,
-                                   "Primicarb": 6.50,
+                                   "Pirimicarb": 6.50,
                                    "Prallethrin": 17.85,
                                    "Propiconazole": 5.30,
                                    "Propoxur": 10.65,
@@ -128,7 +128,7 @@ class ReportMethods:
                                    "Acephate": 45.00,
                                    "Acequinocyl": 65.70,
                                    "Acetamiprid": 15.20,
-                                   "Alidcarb": 128.00,
+                                   "Aldicarb": 128.00,
                                    "Allethrin": 92.10,
                                    "Azadirachtin": 480,
                                    "Azoxystrobin": 8.90,
@@ -196,7 +196,7 @@ class ReportMethods:
                                    "Phenothrin": 113.00,
                                    "Phosmet": 26.00,
                                    "Piperonyl butoxide": 118.00,
-                                   "Primicarb": 9.10,
+                                   "Pirimicarb": 9.10,
                                    "Prallethrin": 44.60,
                                    "Propiconazole": 13.20,
                                    "Propoxur": 9.00,
@@ -361,6 +361,10 @@ class ReportMethods:
             row_counter = 0
             type = sample[0][1][0]
             loq_string = "LOQ (" + type + ")"
+            if type == "Bud":
+                loq_dictionary = self.Bud_LOQ_Dictionary
+            else:
+                loq_dictionary = self.Oil_LOQ_Dictionary
             table_head_string = r"""\newline
 \renewcommand{\arraystretch}{1.1}
 \begin{table}[h!]\centering
@@ -387,7 +391,7 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
 \newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}'''
             row_list = [table_head_string]
             for item in self.sample_data[sample[0][0]]:
-                latex_table_row = self.make_single_table_row(item, row_counter, loq_string)
+                latex_table_row = self.make_single_table_row(item, row_counter, loq_dictionary)
                 row_addition_decision = self.single_table_row_inclusion_decider(row_counter, sample)
                 if row_addition_decision == "END":
                     row_list.append(end_table_line)
@@ -401,7 +405,7 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
             row_list.append(three_table_end_line)
             self.table_row_lists_dictionary[sample[0][0]] = [row_list, report_type]
 
-    def make_single_table_row(self, data_value, row_counter, loq_string):
+    def make_single_table_row(self, data_value, row_counter, loq_dictionary):
         bold_line = False
         data_value_ppm = str(data_value)
         try:
@@ -411,7 +415,10 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
             pass
         analyte_name = str(self.sample_data['pesticides/toxins list'].loc[row_counter])
         reference_recovery_value = str(self.sample_data["Curve Recovery"].loc[row_counter])
-        loq_value = str(self.sample_data[loq_string].loc[row_counter])
+        try:
+            loq_value = str(loq_dictionary[analyte_name])
+        except KeyError:
+            loq_value = 000
         blank_value = "ND"
         if bold_line:
             latex_table_row = r"\textbf{" + analyte_name + \
@@ -420,7 +427,7 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
                               " }& " + \
                               r"\textbf{" + blank_value + \
                               " }& " + \
-                              r"\textbf{" + self.sig_fig_and_rounding_for_values(loq_value) + \
+                              r"\textbf{" + self.sig_fig_and_rounding_for_values(str(loq_value)) + \
                               " }& " + \
                               r"\textbf{" + self.sig_fig_and_rounding_for_values(reference_recovery_value) +\
                               r" }\\" + "\n" + r"\hline"
@@ -431,7 +438,7 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
                               " & " + \
                               blank_value + \
                               " & " + \
-                              self.sig_fig_and_rounding_for_values(loq_value) + \
+                              self.sig_fig_and_rounding_for_values(str(loq_value)) + \
                               " & " + \
                               self.sig_fig_and_rounding_for_values(reference_recovery_value) +\
                               r" \\" + "\n" + r"\hline"
