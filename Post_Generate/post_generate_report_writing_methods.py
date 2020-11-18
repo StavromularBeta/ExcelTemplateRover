@@ -55,7 +55,7 @@ class ReportMethods:
                                    "Dodemorph": 10.00,
                                    "Endosulfan-alpha": 30.00,
                                    "Endosulfan-beta": 5.00,
-                                   "Endosulfan sulfate": 5.00,
+                                   "Endosulfan-sulfate": 5.00,
                                    "Ethoprophos": 7.35,
                                    "Etofenprox": 10.74,
                                    "Etoxazole": 6.80,
@@ -159,7 +159,7 @@ class ReportMethods:
                                    "Dodemorph": 25.00,
                                    "Endosulfan-alpha": 75.00,
                                    "Endosulfan-beta": 12.50,
-                                   "Endosulfan sulfate": 12.50,
+                                   "Endosulfan-sulfate": 12.50,
                                    "Ethoprophos": 9.40,
                                    "Etofenprox": 26.80,
                                    "Etoxazole": 17.00,
@@ -525,33 +525,27 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
                 if float(sample_string_value):
                     bold_line = True
                 else:
-                    pass
+                    bold_line = False
             except ValueError:
-                pass
+                bold_line = False
             if bold_line:
                 sample_string += r'\textbf{' + sample_string_value + "} &"
             else:
                 sample_string += sample_string_value + " &"
         loq_string = " "
         for item in loq_types_list[split_list_counter]:
-            loq_identifier_string = "LOQ (" + item + ")"
-            loq_value = self.sig_fig_and_rounding_for_values(
-                str(self.sample_data[loq_identifier_string].loc[row_counter]))
-            if bold_line:
-                loq_string += r'\textbf{' + loq_value + "} &"
+            if item == "Bud":
+                try:
+                    loq_value = str(self.Bud_LOQ_Dictionary[analyte_name])
+                except KeyError:
+                    break
             else:
-                loq_string += loq_value + " &"
-        if bold_line:
-            multi_table_row = r'\textbf{' + analyte_name + \
-                              "}&" + \
-                              sample_string + \
-                              loq_string + \
-                              r" \textbf{ND} & " + \
-                              r'\textbf{' + reference_recovery_value + \
-                              r"} \\" +\
-                              "\n" + "\hline"
-        else:
-            multi_table_row = analyte_name +\
+                try:
+                    loq_value = str(self.Oil_LOQ_Dictionary[analyte_name])
+                except KeyError:
+                    break
+            loq_string += loq_value + " &"
+        multi_table_row = analyte_name +\
                               "&" +\
                               sample_string +\
                               loq_string +\
