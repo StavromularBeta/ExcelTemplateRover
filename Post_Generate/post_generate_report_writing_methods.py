@@ -226,7 +226,7 @@ class ReportMethods:
                                    "aflatoxin G1": 0.030,
                                    "aflatoxin G2": 0.015,
                                    "ochratoxin": 0.030,
-                                   "zearalenone": 0.030
+                                   "Zearalenone": 0.030
                                    }
         self.Analyte_Numbers = {"Abamectin": 1,
                                    "Acephate": 2,
@@ -384,11 +384,11 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
 \end{table}
 \textbf{continued on next page...}
 \newpage
-\newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}"""
+\newgeometry{head=95pt, includehead=true, includefoot=true, margin=0.5in}"""
             three_table_end_line = r'''\end{tabular}
 \end{table}
 \newpage
-\newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}'''
+\newgeometry{head=95pt, includehead=true, includefoot=true, margin=0.5in}'''
             row_list = [table_head_string]
             for item in self.sample_data[sample[0][0]]:
                 latex_table_row = self.make_single_table_row(item, row_counter, loq_dictionary)
@@ -482,7 +482,7 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
 \end{table}
 \textbf{continued on next page...}
 \newpage
-\newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}"""
+\newgeometry{head=95pt, includehead=true, includefoot=true, margin=0.5in}"""
             for sub_list in split_list:
                 row_counter = 0
                 row_list = [table_headers[split_list_counter]]
@@ -505,7 +505,7 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
                     row_list.append(r'''\end{tabular}
 \end{table}
 \newpage
-\newgeometry{head=65pt, includehead=true, includefoot=true, margin=0.5in}''')
+\newgeometry{head=95pt, includehead=true, includefoot=true, margin=0.5in}''')
                     try:
                         self.table_row_lists_dictionary[jobnumber][0] += row_list
                     except KeyError:

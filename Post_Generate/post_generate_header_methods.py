@@ -41,7 +41,8 @@ class HeaderMethods:
 \pagestyle{fancy}
 
 % HEADER
-\fancyhead[L]{
+\fancyhead[L]{\textbf{Cannabis - Report form: rev 4Dec 2019 MBL} \\
+              \phantom{a} \\
               """ + item[0] + r""" \\
               """ + item[16] + r""" \\
               """ + item[4] + r""" \\
@@ -50,7 +51,8 @@ class HeaderMethods:
               """ + item[11] + r""" \\
               """ + item[12] + r""" \\
               }
-\fancyhead[C]{
+\fancyhead[C]{\phantom{a}\\
+              \phantom{a} \\
               \textbf{Date:} """ + item[1] + r"""  (""" + item[2] + r""")""" + item[17][0] + r""" \\
               \textbf{Source:} """ + item[7] + item[17][1] + r""" \\
               \textbf{Type:} """ + item[8] + r"""""" + item[17][2] + r""" \\
@@ -59,7 +61,8 @@ class HeaderMethods:
               """ + item[14] + r"""""" + item[17][5] + r"""\\
               \phantom{a}\\
               }
-\fancyhead[R]{
+\fancyhead[R]{\textbf{Health Canada Mandatory Pesticide Testing} \\
+              \phantom{a} \\
               \textbf{No.} """ + item[3] + r"""\\
               % add in the # of pages total on the line below. 
               Page \thepage{} of \\
@@ -76,7 +79,7 @@ class HeaderMethods:
 \fancyfoot[L]{\textbf{T:} 250 656 1334\\ \textbf{E:} info@mblabs.com}
 
 % SETS THE HEIGHT OF THE HEADER, INCLUDES HEADER AND FOOTER, REMOVES A LINE BELOW HEADER
-\geometry{head=65pt, includehead=true, includefoot=true}
+\geometry{head=95pt, includehead=true, includefoot=true}
 \renewcommand{\headrulewidth}{0pt}
 
 \begin{document}"""
