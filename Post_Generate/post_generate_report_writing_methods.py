@@ -117,12 +117,12 @@ class ReportMethods:
                                    "Thiamethoxam": 10.50,
                                    "Thiophanate-methyl": 6.60,
                                    "Trifloxystrobin": 6.30,
-                                   "aflatoxin B1": 0.030,
-                                   "aflatoxin B2": 0.015,
-                                   "aflatoxin G1": 0.030,
-                                   "aflatoxin G2": 0.015,
-                                   "ochratoxin": 0.030,
-                                   "zearalenone": 0.030
+                                   "Aflatoxin B1": 0.030,
+                                   "Aflatoxin B2": 0.015,
+                                   "Aflatoxin G1": 0.030,
+                                   "Aflatoxin G2": 0.015,
+                                   "Ochratoxin": 0.030,
+                                   "Zearalenone": 0.030
                                    }
         self.Oil_LOQ_Dictionary = {"Abamectin": 145.00,
                                    "Acephate": 45.00,
@@ -221,18 +221,18 @@ class ReportMethods:
                                    "Thiamethoxam": 9.90,
                                    "Thiophanate-methyl": 16.50,
                                    "Trifloxystrobin": 8.50,
-                                   "aflatoxin B1": 0.030,
-                                   "aflatoxin B2": 0.015,
-                                   "aflatoxin G1": 0.030,
-                                   "aflatoxin G2": 0.015,
-                                   "ochratoxin": 0.030,
+                                   "Aflatoxin B1": 0.030,
+                                   "Aflatoxin B2": 0.015,
+                                   "Aflatoxin G1": 0.030,
+                                   "Aflatoxin G2": 0.015,
+                                   "Ochratoxin": 0.030,
                                    "Zearalenone": 0.030
                                    }
         self.Analyte_Numbers = {"Abamectin": 1,
                                    "Acephate": 2,
                                    "Acequinocyl": 3,
                                    "Acetamiprid": 4,
-                                   "Alidcarb": 5,
+                                   "Aldicarb": 5,
                                    "Allethrin": 6,
                                    "Azadirachtin": 7,
                                    "Azoxystrobin": 8,
@@ -263,7 +263,7 @@ class ReportMethods:
                                    "Dodemorph": 33,
                                    "Endosulfan-alpha": 34,
                                    "Endosulfan-beta": 35,
-                                   "Endosulfan sulfate": 36,
+                                   "Endosulfan-sulfate": 36,
                                    "Ethoprophos": 37,
                                    "Etofenprox": 38,
                                    "Etoxazole": 39,
@@ -300,7 +300,7 @@ class ReportMethods:
                                    "Phenothrin": 70,
                                    "Phosmet": 71,
                                    "Piperonyl butoxide": 72,
-                                   "Primicarb": 73,
+                                   "Pirimicarb": 73,
                                    "Prallethrin": 74,
                                    "Propiconazole": 75,
                                    "Propoxur": 76,
@@ -325,12 +325,12 @@ class ReportMethods:
                                    "Thiamethoxam": 95,
                                    "Thiophanate-methyl": 96,
                                    "Trifloxystrobin": 97,
-                                   "aflatoxin B1": 1,
-                                   "aflatoxin B2": 2,
-                                   "aflatoxin G1": 3,
-                                   "aflatoxin G2": 4,
-                                   "ochratoxin": 5,
-                                   "zearalenone": 6
+                                   "Aflatoxin B1": 1,
+                                   "Aflatoxin B2": 2,
+                                   "Aflatoxin G1": 3,
+                                   "Aflatoxin G2": 4,
+                                   "Ochratoxin": 5,
+                                   "Zearalenone": 6
                                    }
 
     def generate_pesticide_reports(self):
@@ -369,15 +369,16 @@ class ReportMethods:
 \renewcommand{\arraystretch}{1.1}
 \begin{table}[h!]\centering
 \small
-\begin{tabular}{p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
-                p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
-                p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
-                p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
-                p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}
+\begin{tabular}{p{\dimexpr0.05\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
+                p{\dimexpr0.19\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
+                p{\dimexpr0.19\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
+                p{\dimexpr0.19\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
+                p{\dimexpr0.19\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
+                p{\dimexpr0.19\textwidth-2\tabcolsep-\arrayrulewidth\relax}
                 }
-\textbf{Analyte} & \textbf{Sample 1}  & \textbf{\small Blank} &  $\mathbf{\small """ +\
+& \textbf{Analyte} & \textbf{Sample 1}  & \textbf{\small Blank} &  $\mathbf{\small """ +\
 loq_string + r"""}$ & \textbf{\small \% Ref} \\
-& (ng/g) & (ng/g) & (ng/g) & (Recovery) \\
+& & (ng/g) & (ng/g) & (ng/g) & (Recovery) \\
 \hline
 \hline"""
             end_table_line = r"""\end{tabular}
@@ -420,8 +421,14 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
         except KeyError:
             loq_value = 000
         blank_value = "ND"
+        try:
+            analyte_number = self.Analyte_Numbers[analyte_name]
+        except KeyError:
+            analyte_number = 000
         if bold_line:
-            latex_table_row = r"\textbf{" + analyte_name + \
+            latex_table_row = r"\textbf{" + str(analyte_number) + \
+                              " }& " + \
+                              r"\textbf{" + analyte_name + \
                               " }& " + \
                               r"\textbf{" + self.sig_fig_and_rounding_for_values(data_value_ppm) + \
                               " }& " + \
@@ -432,7 +439,9 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
                               r"\textbf{" + self.sig_fig_and_rounding_for_values(reference_recovery_value) +\
                               r" }\\" + "\n" + r"\hline"
         else:
-            latex_table_row = analyte_name + \
+            latex_table_row = str(analyte_number) + \
+                              " & " + \
+                              analyte_name + \
                               " & " + \
                               self.sig_fig_and_rounding_for_values(data_value_ppm) + \
                               " & " + \
@@ -533,26 +542,31 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
             else:
                 sample_string += sample_string_value + " &"
         loq_string = " "
+        analyte_number = " "
         for item in loq_types_list[split_list_counter]:
             if item == "Bud":
                 try:
                     loq_value = str(self.Bud_LOQ_Dictionary[analyte_name])
+                    analyte_number = str(self.Analyte_Numbers[analyte_name])
                 except KeyError:
                     break
             else:
                 try:
                     loq_value = str(self.Oil_LOQ_Dictionary[analyte_name])
+                    analyte_number = str(self.Analyte_Numbers[analyte_name])
                 except KeyError:
                     break
             loq_string += loq_value + " &"
-        multi_table_row = analyte_name +\
-                              "&" +\
-                              sample_string +\
-                              loq_string +\
-                              " ND & " +\
-                              reference_recovery_value +\
-                              r" \\" +\
-                              "\n" + "\hline"
+        multi_table_row = analyte_number +\
+            "&" +\
+            analyte_name +\
+            "&" +\
+            sample_string +\
+            loq_string +\
+            " ND & " +\
+            reference_recovery_value +\
+            r" \\" +\
+            "\n" + "\hline"
         return multi_table_row
 
     def multi_table_row_inclusion_decider(self, row_counter, sub_list):
@@ -613,12 +627,13 @@ loq_string + r"""}$ & \textbf{\small \% Ref} \\
 \renewcommand{\arraystretch}{1.1}
 \begin{table}[h!]\centering
 \small
-\begin{tabular}{p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|"""
+\begin{tabular}{p{\dimexpr0.05\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
+                p{\dimexpr0.20\textwidth-2\tabcolsep-\arrayrulewidth\relax}|"""
             header_string_2 = r"""p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}|
 p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
 }"""
             columns_required = len(item) + len(loq_types_list[item_counter])
-            space_per_column = 0.60 / columns_required
+            space_per_column = 0.55 / columns_required
             extra_column_string = r"""p{\dimexpr""" +\
                                   str(space_per_column) +\
                                   r"""\textwidth-2\tabcolsep-\arrayrulewidth\relax}|"""
@@ -626,14 +641,14 @@ p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
                 header_string_1 += extra_column_string
             header_string_1 += header_string_2
             header_strings.append(header_string_1)
-            first_row_string = r"\textbf{Analyte} & "
-            second_row_string = r"& "
+            first_row_string = r"&\textbf{Analyte} & "
+            second_row_string = r"&& "
             for subitem in item:
                 sample_number = subitem[0][-1]
                 first_row_string += r"\textbf{Sample " + str(sample_number) + "} & "
                 second_row_string += "(ng/g) & "
             for item in loq_types_list[item_counter]:
-                loq_string = "LOQ ( " + item + " )"
+                loq_string = "LOQ (" + item + ")"
                 first_row_string += r"\textbf{\small " + loq_string + "} & "
                 second_row_string += r"(ng/g) & "
             first_row_string += r"\textbf{\small Blank} & "
@@ -681,7 +696,8 @@ p{\dimexpr0.10\textwidth-2\tabcolsep-\arrayrulewidth\relax}
 	Afalatoxin:\phantom{aaaaaa} 15 ppb \phantom{aaaaa} nut products \phantom{la} Canada\newline
 	\phantom{aaaaaaaaaaaaaala}	20 ppb \phantom{aaaaa} all foods \phantom{aaaala} USA\newline\newline
 	Ochratoxin A: \phantom{aaa}20 ppb \phantom{aaaaa} Cannabis \phantom{aaaaa} Health Canada\newline
-	\phantom{aaaaaaaaaaaaaaal}	5-10 ppb \phantom{aaal} food \& spices\phantom{al}  EU
+	\phantom{aaaaaaaaaaaaaaal}	5-10 ppb \phantom{aaal} food \& spices\phantom{al}  EU\newline\newline
+	Zearalenone: \phantom{aaaa}20-400 ppb \phantom{al} food \& grains \phantom{a} EFSA\newline
     \newline\newline\newline
     R. Bilodeau \phantom{aaaaaaaaaaaaaaaaaaaaaaaaaxaaaaaasasssssssssssss}H. Hartmann\\ Analytical Chemist: \underline{\hspace{3cm}}{ \hspace{3.2cm} Sr. Analytical Chemist: \underline{\hspace{3cm}}       
     \fancyfoot[C]{\textbf{MB Laboratories Ltd.}\\ \textbf{Web:} www.mblabs.com}
