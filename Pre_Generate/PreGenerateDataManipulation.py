@@ -33,6 +33,7 @@ class PreGenerateDataManipulation:
         self.sample_sorter()
         self.sample_dictionary_assembler()
         self.create_job_list()
+        self.create_naughty_list()
         return self.sample_dictionary
 
     def page_splitter(self):
@@ -74,8 +75,8 @@ class PreGenerateDataManipulation:
         for item in self.sample_counter_list:
             for subitem in item:
                 try:
-                    if "batch std" in subitem[3] and subitem[2] == "%rec":
-                        self.sample_dictionary["Curve Recovery"] = self.page_list[counter].iloc[:, subitem[1]]
+                    if "batch" in subitem[0] and subitem[2] == "std":
+                        self.sample_dictionary["Batch Standard"] = self.page_list[counter].iloc[:, subitem[1]]
                 except TypeError:
                     pass
                 try:
@@ -115,6 +116,22 @@ class PreGenerateDataManipulation:
         sample_list = list(set(sample_list))
         self.sample_dictionary["Job List"] = job_list
         self.sample_dictionary["Sample List"] = sample_list
+
+    def create_naughty_list(self):
+        sample_spike_data = ""
+        for item in ["Spike (Bud)", "Spike (Oil)", "Spike (Paper)"]:
+            try:
+                sample_spike_data = self.sample_dictionary[item]
+            except KeyError:
+                pass
+        curve_recovery_data = self.sample_dictionary["Curve Recovery"]
+        batch_spike_data = self.sample_dictionary["Batch Standard"]
+        shit_list = [sample_spike_data, curve_recovery_data, batch_spike_data]
+        shit_list_dictionary = {}
+        for data in shit_list:
+            counter = 0
+            for data_line in data:
+                print(data_line)
 
     def print_sample_dictionary(self):
         for key, value in self.sample_dictionary.items():

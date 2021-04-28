@@ -40,7 +40,11 @@ class PreGenerateHeaderParsing:
 
     def get_current_and_last_month_directory(self):
         self.current_month_directory = 'U:\\TXT-' + self.date_dict[datetime.datetime.now().month] + "\\"
-        self.last_month_directory = 'U:\\TXT-' + self.date_dict[int(datetime.datetime.now().month)-1] + "\\"
+        try:
+            self.last_month_directory = 'U:\\TXT-' + self.date_dict[int(datetime.datetime.now().month)-1] + "\\"
+        except KeyError:
+            self.last_month_directory = 'U:\\TXT-' + self.date_dict[12] + "\\"
+            
 
     def get_header_information_from_unique_jobs_list(self):
         for item in self.sample_dictionary["Job List"]:
